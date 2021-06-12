@@ -1,21 +1,31 @@
-node {
-    def app
-    stage('clone repository') { // for display purposes
-       checkout scm
+node{
+
+    stage('SCM Checkout')
+    {
+        git url: 'https://github.com/raquelbatista/CD-nodejs-app.git'
     }
-    stage('Build') {
-        // Run the maven build
-       app = docker.build("raquelbatista/CD-nodejs-app")
+    
+    
+    stage('Run Docker Compose File')
+    {
+        sh 'sudo docker-compose build'
+        sh 'sudo docker-compose up -d'
     }
-    stage('Test image') {
-        app.inside {
-            sh 'echo "Test PAssed'
+  stage('PUSH image to Docker Hub')
+    {
+      /* withCredentials([string(credentialsId: 'DockerHubPassword', variable: 'DHPWD')]) 
+        {
+            sh "docker login -u upasanatestdocker -p ${DHPWD}"
         }
-    }
-    stage('Push image'){
-        docker.withRegistry('https://registry.hub.docker.com', 'git'){
-            app.push("${env.BUILD_NUMBER}")
-            app.push("latest")
-        }
+        sh 'docker push vardhanns/phpmysql_app'
+        */
+        //docker.withRegistry( 'https://registry.hub.docker.com', 'DockerHubPassword' ) {
+             
+             sh 'sudo docker login -u "raquelbatista" -p "pd_cd" docker.io'
+             //sh 'sudo docker push upasanatestdocker/mysql'
+             //sh 'sudo docker push upasanatestdocker/job1_web1.0'
+            // sh 'sudo docker push raquelbatista/job1_web2.0:latest'
+            // sh 'docker push upasanatestdocker/mysql'
+          
     }
 }
